@@ -1,33 +1,42 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import axios from './api';
 
 function App() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [tasks, setTasks] = useState([]);
+  const [task, setTask] = useState('');
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    // Add login logic here
+  const fetchTasks = async () => {
+    const response = await axios.get('/api/tasks');
+    setTasks(response.data);
   };
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    // Add signup logic here
+  const addTask = async () => {
+    await axios.post('/api/tasks', { name: task });
+    setTask('');
+    fetchTasks();
   };
+
+  const deleteTask = async (id) => {
+    await axios.delete(`/api/tasks/${id}`);
+    fetchTasks();
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
   return (
     <div>
-      <h1>Welcome to AppJGG</h1>
-      <form onSubmit={handleLogin}>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
-        <button type="submit">Login</button>
-      </form>
-      <form onSubmit={handleSignup}>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
-        <button type="submit">Signup</button>
-      </form>
+      <h1>Coaching Tasks</h1>
+      <input value={task} onChange={(e) => setTask(e.target.value)} placeholder="Add a new task" />
+      <button onClick={addTask}>Add Task</button>
+      <ul>
+        {tasks.map(t => (
+          <li key={t._id}>
+            {t.name} <button onClick={() => deleteTask(t._id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
