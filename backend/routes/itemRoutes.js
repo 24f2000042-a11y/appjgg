@@ -1,16 +1,9 @@
 const express = require('express');
-const Item = require('../models/Item');
+const { getItems, createItem, deleteItem } = require('../controllers/itemController');
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-  const items = await Item.find();
-  res.json(items);
-});
-
-router.post('/', async (req, res) => {
-  const newItem = new Item(req.body);
-  await newItem.save();
-  res.status(201).json(newItem);
-});
+router.get('/', getItems);
+router.post('/', createItem);
+router.delete('/:id', deleteItem);
 
 module.exports = router;
